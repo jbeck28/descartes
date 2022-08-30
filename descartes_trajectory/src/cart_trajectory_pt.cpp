@@ -26,7 +26,8 @@
 #include <map>
 #include <algorithm>
 #include <console_bridge/console.h>
-#include <ros/console.h>
+//#include <ros/console.h>
+#include <rclcpp/rclcpp.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include "descartes_trajectory/cart_trajectory_pt.h"
 #include <descartes_core/utils.h>
@@ -48,7 +49,7 @@ EigenSTL::vector_Isometry3d uniform(const TolerancedFrame &frame, const double o
 
   if (pos_increment < 0.0 || orient_increment < 0.0)
   {
-    ROS_WARN_STREAM("Negative position/orientation intcrement: " << pos_increment << "/" << orient_increment);
+    RCLCPP_WARN_STREAM(LOGGER,"Negative position/orientation intcrement: " << pos_increment << "/" << orient_increment);
     rtn.clear();
     return rtn;
   }
@@ -83,7 +84,7 @@ EigenSTL::vector_Isometry3d uniform(const TolerancedFrame &frame, const double o
   // Estimating the number of samples base on tolerance zones and sampling increment.
   size_t est_num_samples = ntx * nty * ntz * nrx * nry * nrz;
 
-  ROS_DEBUG_STREAM("Estimated number of samples: " << est_num_samples << ", reserving space");
+  RCLCPP_DEBUG_STREAM(LOGGER,"Estimated number of samples: " << est_num_samples << ", reserving space");
   rtn.reserve(est_num_samples);
 
   // TODO: The following for loops do not ensure that the rull range is sample (lower to upper)
@@ -124,7 +125,7 @@ EigenSTL::vector_Isometry3d uniform(const TolerancedFrame &frame, const double o
       }
     }
   }
-  ROS_DEBUG_STREAM("Uniform sampling of frame, utilizing orientation increment: "
+  RCLCPP_DEBUG_STREAM(LOGGER,"Uniform sampling of frame, utilizing orientation increment: "
                    << orient_increment << ", and position increment: " << pos_increment << " resulted in " << rtn.size()
                    << " samples");
   return rtn;
@@ -144,7 +145,7 @@ double distance(const std::vector<double> &j1, const std::vector<double> &j2)
   }
   else
   {
-    ROS_WARN_STREAM("Unequal size vectors, returning negative distance");
+    RCLCPP_WARN_STREAM(LOGGER,"Unequal size vectors, returning negative distance");
     return -1;
   }
 
@@ -251,16 +252,16 @@ void CartTrajectoryPt::getCartesianPoses(const RobotModel &model, EigenSTL::vect
   }
   else
   {
-    ROS_ERROR("Failed for find ANY cartesian poses");
+    RCLCPP_ERROR(LOGGER,"Failed for find ANY cartesian poses");
   }
 
   if (poses.empty())
   {
-    ROS_WARN("Failed for find VALID cartesian poses, returning");
+    RCLCPP_WARN(LOGGER,"Failed for find VALID cartesian poses, returning");
   }
   else
   {
-    ROS_DEBUG_STREAM("Get cartesian poses, sampled: " << all_poses.size() << ", with " << poses.size()
+    RCLCPP_DEBUG_STREAM(LOGGER,"Get cartesian poses, sampled: " << all_poses.size() << ", with " << poses.size()
                                                       << " valid(returned) poses");
   }
 }
@@ -272,7 +273,7 @@ bool CartTrajectoryPt::getClosestJointPose(const std::vector<double> &seed_state
 
   if (!model.getFK(seed_state, candidate_pose))
   {
-    ROS_ERROR_STREAM("FK failed for seed pose for closest joint pose");
+    RCLCPP_ERROR_STREAM(LOGGER,"FK failed for seed pose for closest joint pose");
     return false;
   }
 
@@ -304,7 +305,7 @@ bool CartTrajectoryPt::getClosestJointPose(const std::vector<double> &seed_state
       {
         solve_ik = true;
         closest_pose_vals[i] = v < lower ? lower : upper;
-        ROS_DEBUG("Cartesian nominal [%lu] exceeded bounds: [val: %f, lower: %f, upper: %f]", i, v, lower, upper);
+        RCLCPP_DEBUG(LOGGER,"Cartesian nominal [%lu] exceeded bounds: [val: %f, lower: %f, upper: %f]", i, v, lower, upper);
       }
     }
     else
@@ -312,7 +313,7 @@ bool CartTrajectoryPt::getClosestJointPose(const std::vector<double> &seed_state
       if (std::abs(v - lower) > EQUALITY_TOLERANCE)
       {
         solve_ik = true;
-        ROS_DEBUG("Cartesian nominals [%lu] differ: [val: %f, lower: %f, upper: %f]", i, v, lower, upper);
+        RCLCPP_DEBUG(LOGGER,"Cartesian nominals [%lu] differ: [val: %f, lower: %f, upper: %f]", i, v, lower, upper);
         closest_pose_vals[i] = lower;
       }
     }
@@ -325,13 +326,13 @@ bool CartTrajectoryPt::getClosestJointPose(const std::vector<double> &seed_state
         closest_pose_vals[5], descartes_core::utils::EulerConventions::XYZ);
     if (!model.getIK(closest_pose, seed_state, joint_pose))
     {
-      ROS_WARN_STREAM("Ik failed on closest pose");
+      RCLCPP_WARN_STREAM(LOGGER,"Ik failed on closest pose");
 
       std::vector<std::vector<double> > joint_poses;
       getJointPoses(model, joint_poses);
       if (joint_poses.size() > 0)
       {
-        ROS_WARN_STREAM("Closest cartesian pose not found, returning closest to seed joint pose");
+        RCLCPP_WARN_STREAM(LOGGER,"Closest cartesian pose not found, returning closest to seed joint pose");
 
         double sd = std::numeric_limits<double>::max();
         double d;
@@ -347,7 +348,7 @@ bool CartTrajectoryPt::getClosestJointPose(const std::vector<double> &seed_state
       }
       else
       {
-        ROS_ERROR_STREAM("getClosestJointPose failed, no valid joint poses for this point");
+        RCLCPP_ERROR_STREAM(LOGGER,"getClosestJointPose failed, no valid joint poses for this point");
         return false;
       }
 
@@ -388,16 +389,16 @@ void CartTrajectoryPt::getJointPoses(const RobotModel &model, std::vector<std::v
   }
   else
   {
-    ROS_ERROR("Failed for find ANY cartesian poses");
+    RCLCPP_ERROR(LOGGER,"Failed for find ANY cartesian poses");
   }
 
   if (joint_poses.empty())
   {
-    ROS_WARN("Failed for find ANY joint poses, returning");
+    RCLCPP_WARN(LOGGER,"Failed for find ANY joint poses, returning");
   }
   else
   {
-    ROS_DEBUG_STREAM("Get joint poses, sampled: " << poses.size() << ", with " << joint_poses.size()
+    RCLCPP_DEBUG_STREAM(LOGGER,"Get joint poses, sampled: " << poses.size() << ", with " << joint_poses.size()
                                                   << " valid(returned) poses");
   }
 }

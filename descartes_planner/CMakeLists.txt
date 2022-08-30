@@ -1,17 +1,26 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.5)
 project(descartes_planner)
 
-add_compile_options(-std=c++11)
+# default to c++17
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  cmake_modules
-  descartes_core
-  descartes_trajectory
-  pluginlib
-  roscpp
-)
-
-find_package(Boost REQUIRED)
+#find_package(catkin REQUIRED COMPONENTS
+#  cmake_modules
+#  descartes_core
+#  descartes_trajectory
+# pluginlib
+#  roscpp
+#)
+find_package(ament_cmake REQUIRED)
+find_package(descartes_core REQUIRED)
+find_package(descartes_trajectory REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(urdf REQUIRED)
+find_package(pluginlib REQUIRED)
+#find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 # Let's try to use open-mp parallization if we can
@@ -26,30 +35,11 @@ if(NOT EIGEN3_INCLUDE_DIRS)
   set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 endif()
 
-###################################
-## catkin specific configuration ##
-###################################
-catkin_package(
-  INCLUDE_DIRS
-    include
-  LIBRARIES
-    ${PROJECT_NAME}
-  CATKIN_DEPENDS
-    descartes_core
-    descartes_trajectory
-    roscpp
-  DEPENDS
-    Boost
-    EIGEN3
-)
 
 ###########
 ## Build ##
 ###########
 include_directories(include
-                    ${catkin_INCLUDE_DIRS}
-                    ${Boost_INCLUDE_DIRS}
-                    ${EIGEN3_INCLUDE_DIRS}
 )
 
 ## DescartesTrajectoryPt lib
@@ -62,25 +52,46 @@ add_library(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-                      ${catkin_LIBRARIES}
                       ${OpenMP_FLAGS}
+)
+target_include_directories(${PROJECT_NAME} PRIVATE
+
+<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+
+<INSTALL_INTERFACE:include>)
+
+ament_target_dependencies(
+  ${PROJECT_NAME}
+  descartes_core
+  descartes_trajectory
+  rclcpp
+  pluginlib
+  urdf
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${OpenMP_FLAGS})
 
-add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 
 #############
 ## Install ##
 #############
-install(
-    TARGETS ${PROJECT_NAME}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+install(DIRECTORY include/
+  DESTINATION include
+)
 
-install(
-  FILES ${PROJECT_NAME}_plugins.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(TARGETS ${PROJECT_NAME}
+  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+)
 
-install(
-    DIRECTORY include/${PROJECT_NAME}/
-    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+ament_export_dependencies(
+  ${THIS_PACKAGE_INCLUDE_DEPENDS}
+)
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  ${PROJECT_NAME}
+)
+ament_package()

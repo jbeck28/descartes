@@ -1,44 +1,66 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.5)
 project(descartes_utilities)
 
-add_compile_options(-std=c++11 -Wall -Wextra)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  descartes_core
-  descartes_trajectory
-  trajectory_msgs
-)
 
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS descartes_core descartes_trajectory trajectory_msgs
-)
+find_package(ament_cmake REQUIRED)
+find_package(descartes_core REQUIRED)
+find_package(descartes_trajectory REQUIRED)
+find_package(trajectory_msgs REQUIRED)
+find_package(urdf REQUIRED)
+find_package(rclcpp REQUIRED)
 
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME}
   src/ros_conversions.cpp
 )
 
-add_dependencies(${PROJECT_NAME}
-  ${catkin_EXPORTED_TARGETS}
+target_include_directories(${PROJECT_NAME} PUBLIC
+
+<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+
+<INSTALL_INTERFACE:include>)
+
+ament_target_dependencies(
+  ${PROJECT_NAME}
+  descartes_core
+  descartes_trajectory
+  trajectory_msgs
+  urdf
 )
 
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
+
+#############
+## Install ##
+#############
+install(DIRECTORY include/
+  DESTINATION include
 )
 
 install(TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
 )
 
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h"
+ament_export_dependencies(
+  ${THIS_PACKAGE_INCLUDE_DEPENDS}
+  trajectory_msgs
+  urdf
+  rclcpp
 )
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  ${PROJECT_NAME}
+)
+ament_package()
+

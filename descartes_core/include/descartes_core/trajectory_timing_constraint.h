@@ -25,10 +25,12 @@
 #ifndef TRAJECTORY_TIMING_CONSTRAINT_H
 #define TRAJECTORY_TIMING_CONSTRAINT_H
 
-#include <ros/console.h>
+#include <rclcpp/rclcpp.hpp>
+//#include <ros/console.h>
 
 namespace descartes_core
 {
+static const rclcpp::Logger LOGGER=rclcpp::get_logger("descartes_core");
 /**
  * @brief A window of time for this point to be achieved relative to a previous point or
  *        the starting position.
@@ -56,7 +58,7 @@ struct TimingConstraint
   {
     if (nominal < 0.0)
     {
-      ROS_WARN_STREAM("Nominal time value must be greater than or equal to 0.0");
+      RCLCPP_WARN_STREAM(LOGGER,"Nominal time value must be greater than or equal to 0.0");
       lower = 0.0;
       upper = 0.0;
     }
@@ -71,13 +73,13 @@ struct TimingConstraint
   {
     if (lower < 0.0)
     {
-      ROS_WARN_STREAM("Lower time value must be greater than or equal to 0.0");
+      RCLCPP_WARN_STREAM(LOGGER,"Lower time value must be greater than or equal to 0.0");
       lower = 0.0;
     }
 
     if (upper < 0.0)
     {
-      ROS_WARN_STREAM("Upper time value must be greater than or equal to 0.0");
+      RCLCPP_WARN_STREAM(LOGGER,"Upper time value must be greater than or equal to 0.0");
       upper = 0.0;
     }
   }

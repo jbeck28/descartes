@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-#include <pluginlib/class_list_macros.hpp>
-#include <descartes_moveit/moveit_state_adapter.h>
-#include <descartes_moveit/ikfast_moveit_state_adapter.h>
+#include "descartes_core/trajectory_pt.h"
 
-PLUGINLIB_EXPORT_CLASS(descartes_moveit::MoveitStateAdapter, descartes_core::RobotModel)
-PLUGINLIB_EXPORT_CLASS(descartes_moveit::IkFastMoveitStateAdapter, descartes_core::RobotModel)
+//using namespace descartes_core;
+//uint64_t detail::IdGenerator<uint64_t>::counter_(1);
+//boost::mutex detail::IdGenerator<uint64_t>::counter_mutex_;

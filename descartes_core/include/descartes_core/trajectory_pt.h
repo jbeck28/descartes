@@ -25,8 +25,8 @@
 #ifndef TRAJECTORY_PT_H_
 #define TRAJECTORY_PT_H_
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+//#include <Eigen/Core>
+//#include <Eigen/Geometry>
 #include <eigen_stl_containers/eigen_stl_vector_container.h>
 #include <vector>
 

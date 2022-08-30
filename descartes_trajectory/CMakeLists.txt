@@ -1,48 +1,27 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.5)
 project(descartes_trajectory)
 
-add_compile_options(-std=c++11 -Wall -Wextra)
-
-find_package(catkin REQUIRED COMPONENTS
-  cmake_modules
-  descartes_core
-  moveit_core
-  roscpp
-)
-
-find_package(Boost REQUIRED)
-find_package(Eigen3 REQUIRED)
-
-# Eigen 3.2 (Wily) only provides EIGEN3_INCLUDE_DIR, not EIGEN3_INCLUDE_DIRS
-if(NOT EIGEN3_INCLUDE_DIRS)
-  set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
+# default to c++17
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
-###################################
-## catkin specific configuration ##
-###################################
-catkin_package(
-  INCLUDE_DIRS
-    include
-  LIBRARIES
-    ${PROJECT_NAME}
-  CATKIN_DEPENDS
-    descartes_core
-    moveit_core
-    roscpp
-  DEPENDS
-    Boost
-    EIGEN3
-)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(descartes_core REQUIRED)
+find_package(moveit REQUIRED)
+find_package(moveit_ros_planning_interface REQUIRED)
+find_package(moveit_kinematics REQUIRED)
+find_package(moveit_core REQUIRED)
+find_package(moveit_ros REQUIRED)
+
 
 ###########
 ## Build ##
 ###########
 
 include_directories(include
-                    ${catkin_INCLUDE_DIRS}
-                    ${Boost_INCLUDE_DIRS}
-                    ${EIGEN3_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME}
@@ -51,34 +30,42 @@ add_library(${PROJECT_NAME}
             src/joint_trajectory_pt.cpp
 )
 
-target_link_libraries(${PROJECT_NAME}
-                      ${catkin_LIBRARIES}
+#target_link_libraries(${PROJECT_NAME}
+#)
+target_include_directories(${PROJECT_NAME} PRIVATE
+
+<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+
+<INSTALL_INTERFACE:include>)
+
+ament_target_dependencies(
+  ${PROJECT_NAME}
+  moveit_core
+  descartes_core
 )
 
 
 #############
 ## Install ##
 #############
+install(DIRECTORY include/
+  DESTINATION include
+)
 
-install(
-    TARGETS ${PROJECT_NAME}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+install(TARGETS ${PROJECT_NAME}
+  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+)
 
-install(
-    DIRECTORY include/${PROJECT_NAME}/
-    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+ament_export_dependencies(
+  ${THIS_PACKAGE_INCLUDE_DEPENDS}
+)
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  ${PROJECT_NAME}
+)
+ament_package()
 
-
-#############
-## Testing ##
-#############
-
-if(CATKIN_ENABLE_TESTING)
-  set(UTEST_SRC_FILES
-    test/utest.cpp
-    test/trajectory_pt.cpp
-  )
-  catkin_add_gtest(${PROJECT_NAME}_utest ${UTEST_SRC_FILES})
-  target_compile_definitions(${PROJECT_NAME}_utest PUBLIC GTEST_USE_OWN_TR1_TUPLE=0)
-  target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME})
-endif()
