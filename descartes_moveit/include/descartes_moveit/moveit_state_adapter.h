@@ -43,7 +43,7 @@ public:
   virtual bool initialize(const std::string &robot_description, const std::string &group_name,
                           const std::string &world_frame, const std::string &tcp_frame);
 
-  virtual bool initialize(robot_model::RobotModelConstPtr robot_model, const std::string &group_name,
+  virtual bool initialize(moveit::core::RobotModelConstPtr robot_model, const std::string &group_name,
                           const std::string &world_frame, const std::string &tcp_frame);
 
   virtual bool getIK(const Eigen::Isometry3d &pose, const std::vector<double> &seed_state,
@@ -130,7 +130,9 @@ protected:
 
   planning_scene::PlanningScenePtr planning_scene_;
 
-  robot_model::RobotModelConstPtr robot_model_ptr_;
+  moveit::core::RobotModelConstPtr robot_model_ptr_;
+
+  // robot_model::RobotModelConstPtr robot_model_ptr_;
 
   robot_model_loader::RobotModelLoaderPtr robot_model_loader_;
 
@@ -160,6 +162,8 @@ protected:
    * @brief convenient transformation frame
    */
   descartes_core::Frame world_to_root_;
+
+  rclcpp::Node::SharedPtr node;
 };
 
 }  // descartes_moveit

@@ -99,7 +99,7 @@ bool descartes_utilities::toRosJointPoints(const descartes_core::RobotModel& mod
 
     if (pt.getTiming().isSpecified())
     {
-      from_start += rclcpp::Duration(pt.getTiming().upper);
+      from_start = from_start + rclcpp::Duration::from_seconds(pt.getTiming().upper);
     }
     else
     {
@@ -111,7 +111,7 @@ bool descartes_utilities::toRosJointPoints(const descartes_core::RobotModel& mod
       else
         dt = minTime(joint_point, ros_trajectory.back().positions, default_joint_vel);
 
-      from_start += rclcpp::Duration(dt);
+      from_start = from_start + rclcpp::Duration::from_seconds(dt);
     }
 
     ros_pt.time_from_start = from_start;

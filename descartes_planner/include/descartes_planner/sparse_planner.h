@@ -95,6 +95,7 @@ protected:
   SolutionArray sparse_solution_array_;
   std::map<descartes_core::TrajectoryPt::ID, descartes_trajectory::JointTrajectoryPt> joint_points_map_;
   std::vector<descartes_core::TimingConstraint> timing_cache_;
+  rclcpp::Clock clock;
 };
 
 } /* namespace descartes_planner */

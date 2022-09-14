@@ -12,7 +12,7 @@
 
   <author email="jnicho@swri.org">Jorge Nicho</author>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend>descartes_core</build_depend>
   <build_depend>descartes_trajectory</build_depend>
@@ -31,5 +31,6 @@
   <export>
     <descartes_core plugin="${prefix}/descartes_planner_plugins.xml"/>
     <rosdoc config="rosdoc.yaml"/>
+    <build_type>ament_cmake</build_type> 
   </export>
 </package>

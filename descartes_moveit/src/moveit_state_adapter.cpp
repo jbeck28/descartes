@@ -21,11 +21,14 @@
 #include "descartes_moveit/utils.h"
 #include "descartes_moveit/moveit_state_adapter.h"
 #include "descartes_moveit/seed_search.h"
+#include <moveit/robot_model_loader/robot_model_loader.h>
 
 
-#include <eigen_conversions/eigen_msg.h>
+// #include <eigen_conversions/eigen_msg.h>
+#include <tf2_eigen/tf2_eigen.hpp>
 #include <random_numbers/random_numbers.h>
-#include <ros/assert.h>
+// #include <ros/assert.h>
+#include <rcpputils/asserts.hpp>
 #include <sstream>
 
 const static int SAMPLE_ITERATIONS = 10;
@@ -46,7 +49,7 @@ bool getJointVelocityLimits(const moveit::core::RobotState& state, const std::st
     if (model->getType() != moveit::core::JointModel::REVOLUTE &&
         model->getType() != moveit::core::JointModel::PRISMATIC)
     {
-      ROS_ERROR_STREAM(__FUNCTION__ << " Unexpected joint type. Currently works only"
+      RCLCPP_ERROR_STREAM(rclcpp::get_logger("moveit_state_adapter"), __FUNCTION__ << " Unexpected joint type. Currently works only"
                                        " with single axis prismatic or revolute joints.");
       return false;
     }
@@ -72,7 +75,8 @@ bool MoveitStateAdapter::initialize(const std::string& robot_description, const 
                                     const std::string& world_frame, const std::string& tcp_frame)
 {
   // Initialize MoveIt state objects
-  robot_model_loader_.reset(new robot_model_loader::RobotModelLoader(robot_description));
+  // robot_model_loader_.reset(new robot_model_loader::RobotModelLoader(robot_description));
+  robot_model_loader_.reset(new robot_model_loader::RobotModelLoader(this->node, robot_description));
   auto model = robot_model_loader_->getModel();
   if (!model)
   {
@@ -83,7 +87,7 @@ bool MoveitStateAdapter::initialize(const std::string& robot_description, const 
   return initialize(model, group_name, world_frame, tcp_frame);
 }
 
-bool MoveitStateAdapter::initialize(robot_model::RobotModelConstPtr robot_model, const std::string &group_name,
+bool MoveitStateAdapter::initialize(moveit::core::RobotModelConstPtr robot_model, const std::string &group_name,
                                     const std::string &world_frame, const std::string &tcp_frame)
 {
   robot_model_ptr_ = robot_model;
@@ -164,7 +168,7 @@ bool MoveitStateAdapter::getIK(const Eigen::Isometry3d& pose, std::vector<double
     robot_state_->copyJointGroupPositions(group_name_, joint_pose);
     if (!isValid(joint_pose))
     {
-      ROS_DEBUG_STREAM("Robot joint pose is invalid");
+      RCLCPP_DEBUG_STREAM(rclcpp::get_logger("moveit_state_adapter"), "Robot joint pose is invalid");
     }
     else
     {
@@ -335,8 +339,9 @@ std::vector<double> MoveitStateAdapter::getJointVelocityLimits() const
 
 void MoveitStateAdapter::setState(const moveit::core::RobotState& state)
 {
-  ROS_ASSERT_MSG(static_cast<bool>(robot_state_), "'robot_state_' member pointer is null. Have you called "
-                                                  "initialize()?");
+  assert(static_cast<bool>(robot_state_));
+  // RCLCPP_ASSERT_MSG(rclcpp::get_logger("planning_graph"), static_cast<bool>(robot_state_), "'robot_state_' member pointer is null. Have you called "
+  //                                                 "initialize()?");
   *robot_state_ = state;
   planning_scene_->setCurrentState(state);
 }

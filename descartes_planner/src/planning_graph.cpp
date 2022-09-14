@@ -26,7 +26,8 @@
 #include "descartes_planner/planning_graph.h"
 #include "descartes_planner/ladder_graph_dag_search.h"
 #include "descartes_planner/planning_graph_edge_policy.h"
-#include <ros/console.h>
+// #include <ros/console.h>
+#include <console_bridge/console.h>
 
 using namespace descartes_core;
 using namespace descartes_trajectory;
@@ -42,7 +43,7 @@ bool PlanningGraph::insertGraph(const std::vector<TrajectoryPtPtr>& points)
 {
   if (points.size() < 2)
   {
-    ROS_ERROR_STREAM(__FUNCTION__ << ": must provide at least 2 input trajectory points.");
+    RCLCPP_ERROR_STREAM(rclcpp::get_logger("palnning_graph"), __FUNCTION__ << ": must provide at least 2 input trajectory points.");
     return false;
   }
 
@@ -178,7 +179,7 @@ bool PlanningGraph::getShortestPath(double& cost, std::list<JointTrajectoryPt>& 
     path.push_back(std::move(pt));
   }
 
-  ROS_INFO("Computed path of length %lu with cost %lf", path_idxs.size(), cost);
+  RCLCPP_INFO(rclcpp::get_logger("planning_graph"), "Computed path of length %lu with cost %lf", path_idxs.size(), cost);
 
   return true;
 }
@@ -199,7 +200,7 @@ bool PlanningGraph::calculateJointSolutions(const TrajectoryPtPtr* points, const
 
       if (joint_poses.empty())
       {
-        ROS_ERROR_STREAM(__FUNCTION__ << ": IK failed for input trajectory point with ID = " << points[i]->getID());
+        RCLCPP_ERROR_STREAM(rclcpp::get_logger("planning_graph"), __FUNCTION__ << ": IK failed for input trajectory point with ID = " << points[i]->getID());
         success = false;
       }
 
@@ -248,7 +249,7 @@ void PlanningGraph::computeAndAssignEdges(const std::size_t start_idx, const std
   }
 
   graph_.assignEdges(start_idx, std::move(edges));
-  if (!b) ROS_WARN("No edges between user input points at index %lu and %lu", start_idx, end_idx);
+  if (!b) RCLCPP_WARN(rclcpp::get_logger("planning_graph"), "No edges between user input points at index %lu and %lu", start_idx, end_idx);
 }
 
 template<typename EdgeBuilder>
