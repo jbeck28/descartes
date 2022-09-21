@@ -17,6 +17,7 @@ endif()
  # rosconsole_bridge
  # tf
 #)
+find_package(ament_cmake REQUIRED)
 find_package(descartes_core REQUIRED)
 find_package(descartes_trajectory REQUIRED)
 find_package(moveit_core REQUIRED)
@@ -43,9 +44,10 @@ add_library(${PROJECT_NAME}
             src/moveit_state_adapter.cpp
             src/plugin_init.cpp
             src/seed_search.cpp
+            src/test_object.cpp
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
+target_include_directories(${PROJECT_NAME} PUBLIC
 
 <BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 
@@ -76,6 +78,11 @@ install(TARGETS ${PROJECT_NAME}
 
 ament_export_dependencies(
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
+  moveit_core
+  descartes_core
+  descartes_trajectory
+  moveit_ros_planning
+  pluginlib
 )
 ament_export_include_directories(
   include
