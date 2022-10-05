@@ -59,6 +59,9 @@ ament_target_dependencies(
   descartes_core
   descartes_trajectory
   moveit_ros_planning
+)
+
+target_link_libraries(${PROJECT_NAME}
   pluginlib
 )
 
@@ -84,6 +87,7 @@ ament_export_dependencies(
   moveit_ros_planning
   pluginlib
 )
+
 ament_export_include_directories(
   include
 )

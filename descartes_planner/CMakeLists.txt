@@ -20,6 +20,8 @@ find_package(descartes_trajectory REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(urdf REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(moveit_msgs REQUIRED)
+find_package(moveit_core REQUIRED)
 #find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 
@@ -67,6 +69,8 @@ ament_target_dependencies(
   rclcpp
   pluginlib
   urdf
+  moveit_core
+  moveit_msgs
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${OpenMP_FLAGS})
@@ -88,6 +92,7 @@ install(TARGETS ${PROJECT_NAME}
 ament_export_dependencies(
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
 )
+
 ament_export_include_directories(
   include
 )

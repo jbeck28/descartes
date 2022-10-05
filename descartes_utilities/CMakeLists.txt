@@ -13,6 +13,8 @@ find_package(descartes_trajectory REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(urdf REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(moveit_msgs REQUIRED)
+find_package(moveit_core REQUIRED)
 
 include_directories(
   include
@@ -34,6 +36,8 @@ ament_target_dependencies(
   descartes_trajectory
   trajectory_msgs
   urdf
+  moveit_core
+  moveit_msgs
 )
 
 
@@ -56,6 +60,7 @@ ament_export_dependencies(
   urdf
   rclcpp
 )
+
 ament_export_include_directories(
   include
 )

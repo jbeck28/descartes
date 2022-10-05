@@ -14,6 +14,7 @@ find_package(rclcpp REQUIRED)
 find_package(eigen_stl_containers REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(moveit_core REQUIRED)
+find_package(eigen_stl_containers REQUIRED)
 # Eigen 3.2 (Wily) only provides EIGEN3_INCLUDE_DIR, not EIGEN3_INCLUDE_DIRS
 if(NOT EIGEN3_INCLUDE_DIRS)
   set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
@@ -53,15 +54,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 ament_target_dependencies(
   ${PROJECT_NAME}
-  EIGEN3
-  eigen_stl_containers
   moveit_msgs
   rclcpp
   moveit_core
+  eigen_stl_containers
 )
 
-target_link_libraries(${PROJECT_NAME}
-)
+target_link_libraries(${PROJECT_NAME} )
 
 #############
 ## Install ##
@@ -79,10 +78,8 @@ install(TARGETS ${PROJECT_NAME}
 ament_export_dependencies(
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
   eigen_stl_containers
-  moveit_msgs
-  rclcpp
-  moveit_core
 )
+
 ament_export_include_directories(
   include
 )
